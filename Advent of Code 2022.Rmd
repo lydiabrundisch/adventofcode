@@ -1,0 +1,55 @@
+---
+title: "Advent of Code 2022"
+author: "Lydia Brundisch"
+date: "1 12 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/Lenovo/Documents/Advent of Code 2022")
+```
+
+## Day 1: Calorie Counting
+
+### Puzzle input
+
+- each row is the number of calories in one food item
+- each empty row separates the items one elf carries from each other
+
+```{r data prep}
+rm(list=ls())
+temp <- read.csv("Data day 1.csv", blank.lines.skip = FALSE)
+temp <- temp[, 1]
+data <- as.data.frame(matrix(data = NA, 0, 0))
+elf <- 1
+item <- 1
+for (i in 1:length(temp)) {
+  if (is.na(temp[i])) {
+    elf <- elf + 1
+    item <- 1
+  }
+  else {
+    data[item, elf] <- temp[i]
+    item <- item + 1
+  }
+}
+```
+
+### Problem 1
+
+- max of calories of one elf
+
+```{r solution 1}
+data[is.na(data)] <- 0
+cals_by_elf <- apply(data, 2, sum)
+max(cals_by_elf)
+```
+### Problem 2
+
+- sum of calories of three elves with most calories
+
+```{r solution 1}
+cals_by_elf <- sort(cals_by_elf, decreasing = TRUE)
+sum(head(cals_by_elf, 3))
+```
