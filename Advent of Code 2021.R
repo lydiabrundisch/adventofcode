@@ -159,15 +159,15 @@ for (i in 12:1) {
     }
   }
   if (counter[i] >= 0.5 * length(data$V1)) {
-    counter[i] <- 1 # wenn 1en häufiger oder gleich häufig wie 0en sind
+    counter[i] <- 1 # wenn 1en hÃ¤ufiger oder gleich hÃ¤ufig wie 0en sind
   } else {
-    counter[i] <- 0 # wenn 0en häufiger sind
+    counter[i] <- 0 # wenn 0en hÃ¤ufiger sind
   }
   if (length(data$V1) > 1) {
     if (counter[i] == 1) {
-      data <- subset(data, V1 < 10^(i - 1)) # behalte werte mit führender 0
+      data <- subset(data, V1 < 10^(i - 1)) # behalte werte mit fÃ¼hrender 0
     } else {
-      data <- subset(data, V1 >= 10^(i - 1)) # behalte werte mit führender 1
+      data <- subset(data, V1 >= 10^(i - 1)) # behalte werte mit fÃ¼hrender 1
     }
   }
   for (j in 1:length(data$V1)) {
