@@ -10,14 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd("C:/Users/Lenovo/Documents/Advent of Code 2022")
 ```
 
-## Day 1: Calorie Counting
+## Day 1
 
 ### Puzzle input
 
 - each row is the number of calories in one food item
 - each empty row separates the items one elf carries from each other
 
-```{r data prep}
+```{r data prep 1}
 rm(list=ls())
 temp <- read.csv("Data day 1.csv", blank.lines.skip = FALSE)
 temp <- temp[, 1]
@@ -34,13 +34,15 @@ for (i in 1:length(temp)) {
     item <- item + 1
   }
 }
+
+data[, 1:6]
 ```
 
 ### Problem 1
 
 - max of calories of one elf
 
-```{r solution 1}
+```{r solution 1.1}
 data[is.na(data)] <- 0
 cals_by_elf <- apply(data, 2, sum)
 max(cals_by_elf)
@@ -49,7 +51,88 @@ max(cals_by_elf)
 
 - sum of calories of three elves with most calories
 
-```{r solution 1}
+```{r solution 1.2}
 cals_by_elf <- sort(cals_by_elf, decreasing = TRUE)
 sum(head(cals_by_elf, 3))
+```
+
+## Day 2
+
+- tournament winner: player with highest total score
+- total score by player: sum of all game scores by player
+- game score by player: selected shape (1 for Rock, 2 for Paper, 3 for Scissors) + outcome (0 for loss, 3 for draw, and 6 for win; normal rules: Rock > Scissors, Scissors > Paper, Paper > Rock)
+
+### Puzzle input
+
+- column 1 is opponent action (A for Rock, B for Paper, C for Scissors)
+- column 2 is player action (X for Rock, Y for Paper, Z for Scissors)
+- strategy: follow action plan to not win every time, but enough in total
+
+```{r data prep 2.1}
+rm(list=ls())
+data <- read.csv("Data day 2.csv", sep = " ", header = FALSE, col.names = c("opponent_action", "player_action"))
+data$opponent_action <- with(data, factor(opponent_action, levels = c("A", "B", "C"), labels = c("Rock", "Paper", "Scissors")))
+data$player_action <- with(data, factor(player_action, levels = c("X", "Y", "Z"), labels = c("Rock", "Paper", "Scissors")))
+
+head(data)
+
+# rows are player actions, columns are opponent actions, elements are points for player
+
+score <- matrix(data = c(3, 0, 6, 6, 3, 0, 0, 6, 3), nrow = 3, ncol = 3, byrow = TRUE, dimnames = list(c("Rock", "Paper", "Scissors"), c("Rock", "Paper", "Scissors")))
+for (i in 1:3) {
+  score[i, ] <- score[i, ] + i
+}
+
+score
+```
+
+### Problem 1
+
+- total score if you follow puzzle input strategy
+
+```{r}
+for (i in 1:nrow(data)) { 
+  data$player_score[i] <- score[data$player_action[i], data$opponent_action[i]] 
+}
+
+head(data)
+
+sum(data$player_score)
+```
+
+### Problem 2
+
+- column 2 is win state (X for lose, Y for draw, Z for win)
+
+```{r data prep 2.2}
+data$win_state <- with(data, factor(player_action, levels = c("Rock", "Paper", "Scissors"), labels = c("lose", "draw", "win")))
+data$player_action <- NULL
+data$player_score <- NULL
+
+head(data)
+
+# rows are opponent actions, columns are win states, elements are points for player
+
+score <- matrix(data = c("Scissors", "Rock", "Paper", "Rock", "Paper", "Scissors", "Paper", "Scissors", "Rock"), nrow = 3, ncol = 3, dimnames = list(c("lose", "draw", "win"), c("Rock", "Paper", "Scissors")))
+temp <- factor(score, levels = c("Rock", "Paper", "Scissors"), labels = c("1", "2", "3"))
+temp <- as.numeric(temp)
+score <- matrix(data = temp, nrow = 3, ncol = 3, byrow = TRUE, dimnames = list(c("lose", "draw", "win"), c("Rock", "Paper", "Scissors")))
+
+for (i in 1:3) {
+  score[i, ] <- score[i, ] + 3 * (i - 1)
+}
+
+score
+```
+
+- total score if you follow puzzle input strategy
+
+```{r}
+for (i in 1:nrow(data)) { 
+  data$player_score[i] <- score[data$win_state[i], data$opponent_action[i]] 
+}
+
+head(data)
+
+sum(data$player_score)
 ```
