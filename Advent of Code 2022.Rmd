@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd("C:/Users/Lenovo/Documents/Advent of Code 2022")
 ```
 
-## Day 1
+## Day 1 Calorie Counting
 
 ### Puzzle input
 
@@ -56,7 +56,7 @@ cals_by_elf <- sort(cals_by_elf, decreasing = TRUE)
 sum(head(cals_by_elf, 3))
 ```
 
-## Day 2
+## Day 2: Rock Paper Scissors
 
 - tournament winner: player with highest total score
 - total score by player: sum of all game scores by player
@@ -90,7 +90,7 @@ score
 
 - total score if you follow puzzle input strategy
 
-```{r}
+```{r solution 2.1}
 for (i in 1:nrow(data)) { 
   data$player_score[i] <- score[data$player_action[i], data$opponent_action[i]] 
 }
@@ -127,7 +127,7 @@ score
 
 - total score if you follow puzzle input strategy
 
-```{r}
+```{r solution 2.2}
 for (i in 1:nrow(data)) { 
   data$player_score[i] <- score[data$win_state[i], data$opponent_action[i]] 
 }
@@ -135,4 +135,89 @@ for (i in 1:nrow(data)) {
 head(data)
 
 sum(data$player_score)
+```
+
+
+## Day 3: Rucksack Reorganization
+
+### Puzzle input
+
+- each row is a bag that is filled with letters that refer to items
+- each bag can be split in half to obtain two bag compartments
+- each letter is an item type (lowercase and uppercase are different)
+- each item type can be translated into a number
+  - lowercase item types a through z have priorities 1 through 26.
+  - uppercase item types A through Z have priorities 27 through 52.
+
+```{r data prep 3.1}
+rm(list=ls())
+data <- read.csv("Data day 3.csv", header = FALSE)
+data$V2 <- data$V1
+
+data$V1 <- substr(data$V1, 1, nchar(data$V1) / 2)
+data$V2 <- substr(data$V2, nchar(data$V2) / 2 + 1, nchar(data$V2))
+```
+
+### Problem 1
+
+- for each bag, find the item type in both compartments
+- translate the letter to its number ("priority") and get the total sum
+
+```{r solution 3.1}
+hashmap <- data.frame("Letters" = c(letters, LETTERS), "V1" = 0, "V2" = 0)
+
+for (i in 1:nrow(data)) {
+  for (j in 1:nchar(data$V1[i])) {
+    hashmap[hashmap$Letters == substr(data$V1[i], j, j), 2] <- 1
+  }
+  for (j in 1:nchar(data$V2[i])) {
+    hashmap[hashmap$Letters == substr(data$V2[i], j, j), 3] <- 1
+  }
+  data$duplicate[i] <- hashmap[hashmap$V1 == 1 & hashmap$V2 == 1, 1]
+  hashmap$V1 <- 0
+  hashmap$V2 <- 0
+}
+
+dictionary <- data.frame("Letters" = c(letters, LETTERS), "Numbers" = 1:52)
+
+for (i in 1:nrow(data)) {
+  data$priority[i] <- dictionary[data$duplicate[i] == dictionary$Letters, 2] 
+}
+
+sum(data$priority)
+```
+
+### Problem 2
+
+- each group consists of 3 consecutive rows
+- find letter that appears at least once in each row of a group
+- get the sum of translated numbers
+
+```{r solution 3.2}
+data <- read.csv("Data day 3.csv", header = FALSE)
+hashmap$V3 <- 0
+duplicate <- vector()
+group_counter <- 1
+
+for (i in 1:nrow(data)) {
+  for (j in 1:nchar(data$V1[i])) {
+    hashmap[hashmap$Letters == substr(data$V1[i], j, j), 1 + group_counter] <- 1
+  }
+  group_counter <- group_counter + 1
+  if (group_counter == 4) {
+    duplicate[i / 3] <- hashmap[hashmap$V1 == 1 & hashmap$V2 == 1 & hashmap$V3 == 1, 1]
+    group_counter <- 1
+    hashmap$V1 <- 0
+    hashmap$V2 <- 0
+    hashmap$V3 <- 0
+  }
+}
+
+for (i in 1:length(duplicate)) {
+  duplicate[i] <- dictionary[duplicate[i] == dictionary$Letters, 2] 
+}
+
+duplicate <- as.numeric(duplicate)
+
+sum(duplicate)
 ```
