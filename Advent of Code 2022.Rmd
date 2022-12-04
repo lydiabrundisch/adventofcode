@@ -221,3 +221,51 @@ duplicate <- as.numeric(duplicate)
 
 sum(duplicate)
 ```
+
+## Day 4: Camp Cleanup
+
+- each cell contains an ID range
+- rows are pairs
+- in how many pairs does one ID ranges fully contain the other?
+
+```{r solution 4.1}
+rm(list=ls())
+data <- read.csv(text = gsub("-", ",", readLines("Data day 4.csv")), header = FALSE)
+data$containment <- 0
+for (i in 1:nrow(data)) {
+  if ((data$V1[i] >= data$V3[i] & data$V2[i] <= data$V4[i]) |
+      (data$V1[i] <= data$V3[i] & data$V2[i] >= data$V4[i])) {
+    data$containment[i] <- 1
+  }
+}
+sum(data$containment)
+```
+
+- in how many pairs do the ID ranges overlap?
+
+```{r solution 4.2}
+data$overlap <- 0
+for (i in 1:nrow(data)) {
+  if ((data$V1[i] <= data$V3[i] & data$V2[i] >= data$V3[i]) |
+      (data$V1[i] <= data$V4[i] & data$V2[i] >= data$V4[i]) |
+      (data$V3[i] <= data$V1[i] & data$V4[i] >= data$V1[i]) |
+      (data$V3[i] <= data$V2[i] & data$V4[i] >= data$V2[i])) {
+    data$overlap[i] <- 1
+  }
+}
+sum(data$overlap)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
