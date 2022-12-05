@@ -7,7 +7,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("C:/Users/Lenovo/Documents/Advent of Code 2022")
+setwd("C:/Users/Lenovo/Documents/Advent of Code 2022/adventofcode")
 ```
 
 ## Day 1 Calorie Counting
@@ -256,12 +256,88 @@ for (i in 1:nrow(data)) {
 sum(data$overlap)
 ```
 
+## Day 5: Supply Stacks
 
+- data is positions
+- operations is procedure
+- which elements are on top in end?
 
+```{r data prep 5}
+rm(list=ls())
+data <- read.csv(text = gsub("    ", "[ ]", readLines("Data day 5.csv", 8)), sep="]", header = FALSE)
+data <- data[-10]
+data <- read.csv(text = gsub("[\\[c() ]", "", data), header = FALSE)
+data <- as.data.frame(t(data))
+data
 
+operations <- read.csv("Data day 5.csv", sep=" ", header = FALSE)
+operations <- operations[10:nrow(operations), 1:6]
+operations[, c(2, 4, 6)] <- apply(operations[, c(2, 4, 6)], 2, function(x) as.numeric(as.character(x)))
+rownames(operations) <- NULL
+head(operations)
+```
 
+```{r solution 2 that I did first because I cannot read...}
+# making enough space above the actual area of entries
+data <- rbind(matrix("", nrow(data)*ncol(data) - nrow(data), ncol(data)), data)
+rownames(data) <- NULL
 
+for (i in 1:nrow(operations)) {
+  n_items = operations[i, 2]
+  before_col = operations[i, 4]
+  after_col = operations[i, 6]
+  n_items <- as.integer(n_items)
+  temp_buffer <- nrow(data) + 1
+  before_col <- as.integer(before_col)
+  after_col <- as.integer(after_col)
+  temp_to_move <- data[which(data[, before_col] != "")[1:n_items], before_col]
+  data[which(data[, before_col] != "")[1:n_items], before_col] <- ""
+  if (!is.na(which(data[, after_col] != "")[1])) {
+    temp_buffer <- which(data[, after_col] != "")[1]
+  }
+  data[((temp_buffer - n_items):(temp_buffer - 1)), after_col] <- temp_to_move
+}
+tail(data, 18)
 
+top <- c()
+for (i in 1:ncol(data)) {
+  top[i] <- data[which(data[, i] != "")[1], i]
+}
+top <- paste(top, collapse = "")
+top
+```
+
+```{r solution 1}
+data <- read.csv(text = gsub("    ", "[ ]", readLines("Data day 5.csv", 8)), sep="]", header = FALSE)
+data <- data[-10]
+data <- read.csv(text = gsub("[\\[c() ]", "", data), header = FALSE)
+data <- as.data.frame(t(data))
+# making enough space above the actual area of entries
+data <- rbind(matrix("", nrow(data)*ncol(data) - nrow(data), ncol(data)), data)
+rownames(data) <- NULL
+
+move <- function(data, before_col, after_col) {
+  operations[i, 4] <- as.integer(operations[i, 4])
+  operations[i, 6] <- as.integer(operations[i, 6])
+  data[(nrow(data) - length(which(data[, after_col] != ""))), after_col] <- data[which(data[, before_col] != "")[1], before_col]
+  data[which(data[, before_col] != "")[1], before_col] <- ""
+  return(data)
+}
+
+for (i in 1:nrow(operations)) {
+  for (j in 1:operations[i, 2]) {
+    data <- move(data = data, before_col = operations[i, 4], after_col = operations[i, 6]) 
+  }
+}
+tail(data, 18)
+
+top <- c()
+for (i in 1:ncol(data)) {
+  top[i] <- data[which(data[, i] != "")[1], i]
+}
+top <- paste(top, collapse = "")
+top
+```
 
 
 
