@@ -339,9 +339,29 @@ top <- paste(top, collapse = "")
 top
 ```
 
+## Day 6: Tuning Trouble
 
+- find marker: position of first letter after a 4 letter sequence that is all different from beginning of buffer
 
+```{r solution 6.1}
+rm(list=ls())
+data <- readLines("Data day 6.csv")
+sequence <- vector()
+duplicates <- vector()
+for (i in 1:(nchar(data) - 3)) {
+  sequence[i] <- substr(data, i, i + 3)
+  duplicates[i] <- sum(duplicated(unlist(strsplit(sequence[i], split = ""))))
+}
+which(duplicates == 0)[1] + 3
+```
 
+- find marker: 14 distinct characters rather than 4.
 
-
-
+```{r solution 6.2}
+for (i in 1:(nchar(data) - 3)) {
+  sequence[i] <- substr(data, i, i + 13)
+  duplicates[i] <- sum(duplicated(unlist(strsplit(sequence[i], split = ""))))
+}
+which(duplicates == 0)[1] + 13
+#3541
+```
